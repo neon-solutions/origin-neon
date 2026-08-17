@@ -1,0 +1,37 @@
+{
+	"name": "origin-neon",
+	"version": "0.1.0",
+	"private": true,
+	"license": "Apache-2.0",
+	"type": "module",
+	"description": "Cursor Origin app that creates a Neon branch for each pull request, stacked when the PR is stacked.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/neon-solutions/origin-neon.git"
+	},
+	"scripts": {
+		"dev": "neon dev",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:e2e:live": "ORIGIN_NEON_LIVE=1 vitest run --config vitest.e2e.config.ts",
+		"fmt": "prettier --write .",
+		"fmt:check": "prettier --check ."
+	},
+	"engines": {
+		"node": ">=20.19"
+	},
+	"dependencies": {
+		"@neon/config": "^1.0.0",
+		"@neon/sdk": "^2.1.0",
+		"jose": "^6.0.11",
+		"openid-client": "^6.8.1",
+		"postgres": "^3.4.7"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.0",
+		"prettier": "^3.8.1",
+		"typescript": "^5.7.2",
+		"vitest": "^3.2.4"
+	}
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
+
+.neon
+.env
+.env.*
+!.env.example
+
+*.pem
