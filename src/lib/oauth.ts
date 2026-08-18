@@ -82,28 +82,70 @@ function requireRefreshToken(
 	};
 }
 
+export class OauthTokenExchangeError extends Error {
+	readonly oauthError: string;
+	readonly oauthErrorDescription: string | null;
+	readonly redirectUri: string;
+	readonly requestOrigin: string;
+
+	constructor(input: {
+		oauthError: string;
+		oauthErrorDescription: string | null;
+		redirectUri: string;
+		requestOrigin: string;
+	}) {
+		super("oauth_token_exchange_failed");
+		this.name = "OauthTokenExchangeError";
+		this.oauthError = input.oauthError;
+		this.oauthErrorDescription = input.oauthErrorDescription;
+		this.redirectUri = input.redirectUri;
+		this.requestOrigin = input.requestOrigin;
+	}
+}
+
+// Hydra requires the same redirect_uri for authorization and token exchange.
+// Functions may expose an internal request origin after TLS termination.
+export function callbackUrlForTokenExchange(
+	registeredRedirectUri: string,
+	incoming: URL,
+): URL {
+	const callback = new URL(registeredRedirectUri);
+	callback.search = incoming.search;
+	return callback;
+}
+
 export async function exchangeOauthCode(input: {
 	config: Config;
 	callbackUrl: URL;
+	registeredRedirectUri: string;
 	codeVerifier: string;
 	expectedState: string;
 }): Promise<OauthTokens> {
-	const start = oauthStart(input.config, input.callbackUrl.origin);
-	if (start.kind === "disabled") {
-		throw new Error(start.reason);
-	}
 	const configuration = await discover({
-		host: start.host,
-		clientId: start.clientId,
+		host: input.config.oauth.host,
+		clientId: input.config.oauth.clientId,
 	});
-	const tokenSet = await client.authorizationCodeGrant(
-		configuration,
+	const grantUrl = callbackUrlForTokenExchange(
+		input.registeredRedirectUri,
 		input.callbackUrl,
-		{
+	);
+	let tokenSet: client.TokenEndpointResponse;
+	try {
+		tokenSet = await client.authorizationCodeGrant(configuration, grantUrl, {
 			pkceCodeVerifier: input.codeVerifier,
 			expectedState: input.expectedState,
-		},
-	);
+		});
+	} catch (error) {
+		if (error instanceof client.ResponseBodyError) {
+			throw new OauthTokenExchangeError({
+				oauthError: error.error,
+				oauthErrorDescription: error.error_description ?? null,
+				redirectUri: input.registeredRedirectUri,
+				requestOrigin: input.callbackUrl.origin,
+			});
+		}
+		throw error;
+	}
 	return requireRefreshToken(tokenSet);
 }
 

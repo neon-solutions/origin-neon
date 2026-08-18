@@ -7,7 +7,12 @@ import {
 	type Sql,
 } from "./db.ts";
 import { html, json, redirect } from "./http.ts";
-import { buildOauthStart, exchangeOauthCode } from "./oauth.ts";
+import {
+	buildOauthStart,
+	exchangeOauthCode,
+	OauthTokenExchangeError,
+	type OauthTokens,
+} from "./oauth.ts";
 
 export async function handleOauthStart(input: {
 	config: Config;
@@ -47,12 +52,36 @@ export async function handleOauthCallback(input: {
 		return json(400, { error: "callback is missing state" });
 	}
 	const stored = await consumeOauthState({ sql: input.sql, state });
-	const tokens = await exchangeOauthCode({
-		config: input.config,
-		callbackUrl: input.url,
-		codeVerifier: stored.codeVerifier,
-		expectedState: state,
-	});
+	let tokens: OauthTokens;
+	try {
+		tokens = await exchangeOauthCode({
+			config: input.config,
+			callbackUrl: input.url,
+			registeredRedirectUri: start.redirectUri,
+			codeVerifier: stored.codeVerifier,
+			expectedState: state,
+		});
+	} catch (error) {
+		if (error instanceof OauthTokenExchangeError) {
+			console.error(
+				JSON.stringify({
+					event: "oauth_token_exchange_failed",
+					oauth_error: error.oauthError,
+					oauth_error_description: error.oauthErrorDescription,
+					redirect_uri: error.redirectUri,
+					request_origin: error.requestOrigin,
+				}),
+			);
+			return json(502, {
+				error: "oauth_token_exchange_failed",
+				oauth_error: error.oauthError,
+				oauth_error_description: error.oauthErrorDescription,
+				redirect_uri: error.redirectUri,
+				request_origin: error.requestOrigin,
+			});
+		}
+		throw error;
+	}
 	if (stored.installationId !== null) {
 		await upsertInstallation({
 			sql: input.sql,
