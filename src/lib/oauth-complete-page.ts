@@ -1,0 +1,61 @@
+export const OAUTH_COMPLETE_PAGE = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Neon</title>
+    <style>
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        color: #2d374c;
+      }
+      @media (prefers-color-scheme: dark) {
+        body,
+        html {
+          background-color: #191919;
+          color: #bfbfbf;
+        }
+      }
+      .logo {
+        display: inline-block;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+      }
+      .logo svg path {
+        fill: #37c38f;
+      }
+      @media (prefers-color-scheme: dark) {
+        .logo svg path {
+          fill: #34d59a;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M63 0.0177909V63.5526L38.4178 42.2501V63.5526H0V0L63 0.0177909ZM7.72251 55.8389H30.6953V25.3238L55.2779 47.0476V7.72922L7.72251 7.71559V55.8389Z"
+        />
+      </svg>
+    </div>
+    <h1>Thank you for using Neon</h1>
+    <p>You may close this page now</p>
+  </body>
+</html>
+`;

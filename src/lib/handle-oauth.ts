@@ -7,6 +7,7 @@ import {
 	type Sql,
 } from "./db.ts";
 import { html, json, redirect } from "./http.ts";
+import { OAUTH_COMPLETE_PAGE } from "./oauth-complete-page.ts";
 import {
 	buildOauthStart,
 	exchangeOauthCode,
@@ -94,8 +95,5 @@ export async function handleOauthCallback(input: {
 			appSecret: input.config.appSecret,
 		});
 	}
-	return html(
-		200,
-		`<!doctype html><meta charset="utf-8"><title>Neon connected</title><p>Neon OAuth completed. You can close this tab.</p>`,
-	);
+	return html(200, OAUTH_COMPLETE_PAGE);
 }
