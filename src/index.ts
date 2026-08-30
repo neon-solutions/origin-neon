@@ -1,3 +1,5 @@
+import "./instrument.ts";
+import { Sentry } from "./instrument.ts";
 import { loadConfig } from "./lib/config.ts";
 import { connectDb, migrate, type Sql } from "./lib/db.ts";
 import { handleOauthCallback, handleOauthStart } from "./lib/handle-oauth.ts";
@@ -55,11 +57,32 @@ async function route(request: Request): Promise<Response> {
 
 export default {
 	async fetch(request: Request): Promise<Response> {
-		try {
-			return await route(request);
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			return json(500, { error: message });
-		}
+		const url = new URL(request.url);
+		return Sentry.withIsolationScope(() =>
+			Sentry.startSpan(
+				{
+					op: "http.server",
+					name: `${request.method} ${url.pathname}`,
+					forceTransaction: true,
+					attributes: {
+						"http.request.method": request.method,
+						"url.path": url.pathname,
+					},
+				},
+				async (span) => {
+					try {
+						const response = await route(request);
+						span.setAttribute("http.response.status_code", response.status);
+						return response;
+					} catch (error) {
+						Sentry.captureException(error);
+						span.setAttribute("http.response.status_code", 500);
+						const message =
+							error instanceof Error ? error.message : String(error);
+						return json(500, { error: message });
+					}
+				},
+			).finally(() => Sentry.flush(2000)),
+		);
 	},
 };
