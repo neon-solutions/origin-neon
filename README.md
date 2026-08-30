@@ -2,7 +2,7 @@
 
 A [Cursor Origin](https://cursor.com/docs/origin) app that gives each pull request its own [Neon](https://neon.com) branch.
 
-Install the app on a native Origin repository. Opening a PR creates a child Neon branch. A stacked PR parents onto the parent PR's Neon branch, not production. Closing the last child deletes the branch. The PR comment is the console link, never a secret.
+Origin PRs otherwise share production Postgres. Install the app on a native Origin repository. Opening a PR creates a child Neon branch. A stacked PR parents onto the parent PR's Neon branch, not production. Closing the last child deletes the branch. The PR comment is the console link, never a secret.
 
 Agents and CI pull secrets themselves:
 
@@ -69,17 +69,33 @@ Two credentials. Neither belongs in the customer's git repo.
 cp .env.example .env.local
 neon link
 neon checkout <branch>
-neon deploy
 ```
 
-| Variable                                           | Role                                    |
-| -------------------------------------------------- | --------------------------------------- |
-| `APP_SECRET`                                       | Encrypts refresh tokens                 |
-| `PUBLIC_BASE_URL`                                  | Function URL, no trailing slash         |
-| `NEON_API_KEY` / `NEON_PROJECT_ID`                 | Labs path                               |
-| `ORIGIN_REPO_ALLOWLIST`                            | Comma-separated Origin repository ids   |
-| `ORIGIN_APP_ID` / `ORIGIN_PRIVATE_KEY_PEM`         | Origin app signing key                  |
-| `NEON_OAUTH_CLIENT_ID` / `NEON_OAUTH_REDIRECT_URI` | Partner OAuth client, when you have one |
+Ship code without replacing Function env:
+
+```bash
+neon functions deploy originneon --src src/index.ts --wait
+```
+
+Omitting `--env` keeps the Function's existing secrets. On each ship, merge a release id:
+
+```bash
+neon functions deploy originneon --src src/index.ts \
+  --env "SENTRY_RELEASE=$(git rev-parse --short HEAD)" \
+  --wait
+```
+
+`neon deploy` (config apply) sends the `neon.ts` `env` object as a replacement map. Empty `process.env` values become empty strings on the Function, including `SENTRY_DSN`. Do not run it unless that map is the complete production environment.
+
+| Variable                                           | Role                                                                   |
+| -------------------------------------------------- | ---------------------------------------------------------------------- |
+| `APP_SECRET`                                       | Encrypts refresh tokens                                                |
+| `PUBLIC_BASE_URL`                                  | Function URL, no trailing slash. Optional; handlers use request origin |
+| `NEON_API_KEY` / `NEON_PROJECT_ID`                 | Labs path                                                              |
+| `ORIGIN_REPO_ALLOWLIST`                            | Comma-separated Origin repository ids                                  |
+| `ORIGIN_APP_ID` / `ORIGIN_PRIVATE_KEY_PEM`         | Origin app signing key                                                 |
+| `NEON_OAUTH_CLIENT_ID` / `NEON_OAUTH_REDIRECT_URI` | Partner OAuth client, when you have one                                |
+| `SENTRY_DSN`                                       | Optional. Empty disables Sentry. Merge with `--env`; do not blank it   |
 
 `DATABASE_URL` is injected by Neon Functions for this app's own Postgres.
 

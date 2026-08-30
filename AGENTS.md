@@ -22,7 +22,7 @@ bun run typecheck
 bun run test
 ORIGIN_NEON_LIVE=1 NEON_API_KEY=… NEON_ORG_ID=… bun run test:e2e:live
 neon dev
-neon deploy
+neon functions deploy originneon --src src/index.ts --wait
 ```
 
 Package manager is bun. Tests are Vitest, never `bun test`.
@@ -42,6 +42,8 @@ Package manager is bun. Tests are Vitest, never `bun test`.
 ## Deploy
 
 The Function lives in a Neon project linked by `.neon` (gitignored). `neon.ts` is the source of truth. `PUBLIC_BASE_URL` is optional; handlers fall back to the request origin. Labs credentials are a **project-scoped** `NEON_API_KEY` plus `NEON_PROJECT_ID` and `ORIGIN_REPO_ALLOWLIST`.
+
+`neon functions deploy` without `--env` keeps live secrets. `neon deploy` replaces Function env from `neon.ts` and will blank `SENTRY_DSN` if it is not in the shell. Merge `SENTRY_RELEASE` with `--env KEY=VALUE` on each ship.
 
 ## Ship
 
