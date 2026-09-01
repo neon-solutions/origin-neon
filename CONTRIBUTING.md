@@ -7,6 +7,9 @@ bun install
 cp .env.example .env.local
 ```
 
+`.env.local` is local testing. `neon env pull` / `neon checkout` write branch credentials there.
+`.env.prod` is production Function env for `neon deploy --env .env.prod`. Both are gitignored.
+
 `.neon` is created by `neon link` / `neon checkout` and must stay untracked.
 
 ## Checks
@@ -33,8 +36,8 @@ neon dev
 
 ## Production Function
 
-Preferred full deploy: keep a gitignored env file complete for every key in `neon.ts`, then
-`neon deploy --env <file>`. That loads the file into `process.env` before evaluating `neon.ts`
+Preferred full deploy: keep `.env.prod` complete for every key in `neon.ts`, then
+`neon deploy --env .env.prod`. That loads the file into `process.env` before evaluating `neon.ts`
 and uploads those values. An unset declared key is `undefined` and `defineConfig` throws. Omit
 a key from `neon.ts` if you do not want to write it. Never coerce a missing `process.env` value
 to an empty string.

@@ -71,6 +71,12 @@ neon link
 neon checkout <branch>
 ```
 
+`.env.local` is local testing. `.env.prod` is production Function env.
+
+```bash
+neon deploy --env .env.prod
+```
+
 Ship code without replacing Function env:
 
 ```bash
@@ -85,7 +91,7 @@ neon functions deploy originneon --src src/index.ts \
   --wait
 ```
 
-`neon deploy` (config apply) sends the `neon.ts` `env` object as a replacement map. Empty `process.env` values become empty strings on the Function, including `SENTRY_DSN`. Do not run it unless that map is the complete production environment.
+`neon deploy --env .env.prod` evaluates `neon.ts` and uploads that env map. An unset declared key throws. Empty strings delete live keys. Do not run it unless `.env.prod` is the complete production environment.
 
 | Variable                                           | Role                                                                   |
 | -------------------------------------------------- | ---------------------------------------------------------------------- |
@@ -94,8 +100,9 @@ neon functions deploy originneon --src src/index.ts \
 | `NEON_API_KEY` / `NEON_PROJECT_ID`                 | Labs path                                                              |
 | `ORIGIN_REPO_ALLOWLIST`                            | Comma-separated Origin repository ids                                  |
 | `ORIGIN_APP_ID` / `ORIGIN_PRIVATE_KEY_PEM`         | Origin app signing key                                                 |
-| `NEON_OAUTH_CLIENT_ID` / `NEON_OAUTH_REDIRECT_URI` | Partner OAuth client, when you have one                                |
-| `SENTRY_DSN`                                       | Optional. Empty disables Sentry. Merge with `--env`; do not blank it   |
+| `ORIGIN_KEY_ID`                                    | Origin JWT key id (this app: same as `ORIGIN_APP_ID`)                  |
+| `NEON_OAUTH_CLIENT_ID` / `NEON_OAUTH_REDIRECT_URI` | Partner OAuth client. Prod callback is the Function `/oauth/neon/callback` |
+| `SENTRY_DSN` / `SENTRY_RELEASE`                    | Required in `.env.prod`. Empty locally disables Sentry                 |
 
 `DATABASE_URL` is injected by Neon Functions for this app's own Postgres.
 
