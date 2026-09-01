@@ -7,7 +7,7 @@ bun install
 cp .env.example .env.local
 ```
 
-`.env.local` is local development (`neon env pull` / `neon checkout` / `neon dev`). `.env.prod` is production Function env for `neon deploy --profile dbx --env .env.prod`. Keep both files up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. `neon deploy` also pulls branch credentials into `.env.local`; keep local `PUBLIC_BASE_URL` and the OAuth redirect on `127.0.0.1:8787`. Both files are gitignored.
+`.env.local` is this checkout's local app (`neon env pull --file .env.local` / `neon checkout` / `neon dev`). `.env.prod` is this checkout's Function apply file. Never symlink either file across checkouts. Keep both up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. Both files are gitignored.
 
 `.neon` is created by `neon link` / `neon checkout` and must stay untracked.
 
@@ -35,11 +35,19 @@ neon dev
 
 ## Production Function
 
-Preferred full deploy: keep `.env.prod` complete for every key in `neon.ts`, then
-`neon deploy --profile dbx --env .env.prod`. That loads the file into `process.env` before evaluating `neon.ts`
-and uploads those values. An unset declared key is `undefined` and `defineConfig` throws. Omit
-a key from `neon.ts` if you do not want to write it. Never coerce a missing `process.env` value
-to an empty string.
+Preferred full deploy: keep `.env.prod` complete for every key in `neon.ts` except
+`SENTRY_RELEASE`, then:
+
+```bash
+SENTRY_RELEASE=$(git rev-parse --short HEAD) neon deploy --profile dbx --env .env.prod
+```
+
+That loads the file into `process.env` before evaluating `neon.ts` and uploads those values.
+`--env` does not override an existing shell var. An unset declared key is `undefined` and
+`defineConfig` throws. Omit a key from `neon.ts` if you do not want to write it. Never coerce
+a missing `process.env` value to an empty string. Same Neon project as local, so deploy's env
+pull into `.env.local` is correct; keep local `PUBLIC_BASE_URL` and the OAuth redirect on
+`127.0.0.1:8787`.
 
 For a targeted env update without applying `neon.ts`:
 
