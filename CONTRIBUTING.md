@@ -33,13 +33,13 @@ neon dev
 
 ## Production Function
 
-Ship code without touching env:
+Preferred full deploy: keep a gitignored env file complete for every key in `neon.ts`, then
+`neon deploy --env <file>`. That loads the file into `process.env` before evaluating `neon.ts`
+and uploads those values. An unset declared key is `undefined` and `defineConfig` throws. Omit
+a key from `neon.ts` if you do not want to write it. Never coerce a missing `process.env` value
+to an empty string.
 
-```bash
-neon functions deploy originneon --src src/index.ts --wait
-```
-
-Omitting `--env` keeps the Function's existing environment. `neon functions deploy --env KEY=VALUE` merges that key. On each ship, merge a new release id:
+For a targeted env update without applying `neon.ts`:
 
 ```bash
 neon functions deploy originneon --src src/index.ts \
@@ -47,7 +47,8 @@ neon functions deploy originneon --src src/index.ts \
   --wait
 ```
 
-`neon deploy` (config apply) sends the `neon.ts` `env` object as a replacement map. `process.env.X ?? ""` becomes an empty string when the shell has no secrets and blanks live values such as `SENTRY_DSN`. Do not run `neon deploy` against this project unless `--env` points at a complete production env file.
+Omitting `--env` on `neon functions deploy` keeps the Function's existing environment.
+`--env KEY=VALUE` merges that key (repeatable; not a file path).
 
 ## Ship
 
