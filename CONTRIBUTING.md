@@ -7,7 +7,7 @@ bun install
 cp .env.example .env.local
 ```
 
-`.env.local` is local development (`neon env pull` / `neon checkout` / `neon dev`). `.env.prod` is production Function env for `neon deploy --profile dbx --env .env.prod`. Keep both files up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. Both files are gitignored.
+`.env.local` is local development (`neon env pull` / `neon checkout` / `neon dev`). `.env.prod` is production Function env for `neon deploy --profile dbx --env .env.prod`. Keep both files up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. `neon deploy` also pulls branch credentials into `.env.local`; keep local `PUBLIC_BASE_URL` and the OAuth redirect on `127.0.0.1:8787`. Both files are gitignored.
 
 `.neon` is created by `neon link` / `neon checkout` and must stay untracked.
 
