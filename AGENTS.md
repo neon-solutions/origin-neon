@@ -22,7 +22,7 @@ bun run typecheck
 bun run test
 ORIGIN_NEON_LIVE=1 NEON_API_KEY=… NEON_ORG_ID=… bun run test:e2e:live
 neon dev
-neon deploy --env .env.prod
+neon deploy --profile dbx --env .env.prod
 ```
 
 Package manager is bun. Tests are Vitest, never `bun test`.
@@ -43,7 +43,7 @@ Package manager is bun. Tests are Vitest, never `bun test`.
 
 The Function lives in a Neon project linked by `.neon` (gitignored). `neon.ts` is the source of truth. `PUBLIC_BASE_URL` is optional; handlers fall back to the request origin. Labs credentials are a **project-scoped** `NEON_API_KEY` plus `NEON_PROJECT_ID` and `ORIGIN_REPO_ALLOWLIST`.
 
-`.env.prod` is production Function env. `.env.local` is local testing (`neon dev`, `neon env pull`). Preferred full deploy: `neon deploy --env .env.prod` with every key declared in `neon.ts` present in that file. An unset declared key throws. Omit a key from `neon.ts` to skip writing it. Never coerce a missing `process.env` value to an empty string. `neon functions deploy --env KEY=VALUE` is the manual path for a targeted update.
+`.env.local` is local development (`neon dev`, `neon env pull`). `.env.prod` is production Function env. Keep both files up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. Preferred full deploy: `neon deploy --profile dbx --env .env.prod` with every key declared in `neon.ts` present in that file. An unset declared key throws. Omit a key from `neon.ts` to skip writing it. Never coerce a missing `process.env` value to an empty string. `neon functions deploy --env KEY=VALUE` is the manual path for a targeted update.
 
 ## Ship
 

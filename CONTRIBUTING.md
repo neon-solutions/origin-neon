@@ -7,8 +7,7 @@ bun install
 cp .env.example .env.local
 ```
 
-`.env.local` is local testing. `neon env pull` / `neon checkout` write branch credentials there.
-`.env.prod` is production Function env for `neon deploy --env .env.prod`. Both are gitignored.
+`.env.local` is local development (`neon env pull` / `neon checkout` / `neon dev`). `.env.prod` is production Function env for `neon deploy --profile dbx --env .env.prod`. Keep both files up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. Both files are gitignored.
 
 `.neon` is created by `neon link` / `neon checkout` and must stay untracked.
 
@@ -37,7 +36,7 @@ neon dev
 ## Production Function
 
 Preferred full deploy: keep `.env.prod` complete for every key in `neon.ts`, then
-`neon deploy --env .env.prod`. That loads the file into `process.env` before evaluating `neon.ts`
+`neon deploy --profile dbx --env .env.prod`. That loads the file into `process.env` before evaluating `neon.ts`
 and uploads those values. An unset declared key is `undefined` and `defineConfig` throws. Omit
 a key from `neon.ts` if you do not want to write it. Never coerce a missing `process.env` value
 to an empty string.
@@ -45,7 +44,7 @@ to an empty string.
 For a targeted env update without applying `neon.ts`:
 
 ```bash
-neon functions deploy originneon --src src/index.ts \
+neon functions deploy originneon --profile dbx --src src/index.ts \
   --env "SENTRY_RELEASE=$(git rev-parse --short HEAD)" \
   --wait
 ```
