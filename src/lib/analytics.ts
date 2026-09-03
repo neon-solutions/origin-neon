@@ -33,6 +33,10 @@ export const createAnalytics = (writeKey: string | undefined): Analytics => {
 		flushAt: 1,
 	});
 
+	client.on("error", (error) => {
+		console.error("origin-neon analytics failed:", error);
+	});
+
 	return {
 		track: (event, properties) => {
 			try {
