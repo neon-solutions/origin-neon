@@ -1,3 +1,4 @@
+import { analytics } from "./analytics.ts";
 import type { Config } from "./config.ts";
 import { repoAllowed } from "./config.ts";
 import { neonApiKeyForInstall, neonProjectId } from "./credentials.ts";
@@ -150,6 +151,10 @@ export async function handleWebhook(input: {
 			payload: delivery.event.payload,
 		});
 		await markWebhookProcessed(input.sql, headers.id);
+		analytics.track("origin_webhook_processed", {
+			source: "origin_webhook",
+			event_type: delivery.event.type,
+		});
 		return new Response("ok", { status: 200 });
 	} catch (error) {
 		await releaseWebhookClaim(input.sql, headers.id);

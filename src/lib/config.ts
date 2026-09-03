@@ -5,6 +5,7 @@ export type Config = {
 	labs: LabsConfig | null;
 	origin: OriginConfig | null;
 	oauth: OauthConfig;
+	analyticsWriteKey: string | undefined;
 };
 
 export type LabsConfig = {
@@ -109,6 +110,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 	const configuredClient = optional(env, "NEON_OAUTH_CLIENT_ID");
 	const configuredRedirect = optional(env, "NEON_OAUTH_REDIRECT_URI");
 	const clientId = configuredClient ?? CLI_CLIENT_ID;
+	const analyticsRaw = optional(env, "ANALYTICS_WRITE_KEY")?.trim();
+	const analyticsWriteKey =
+		analyticsRaw === undefined || analyticsRaw === ""
+			? undefined
+			: analyticsRaw;
 
 	return {
 		appSecret,
@@ -121,6 +127,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 			clientId,
 			redirectUri: configuredRedirect ?? null,
 		},
+		analyticsWriteKey,
 	};
 }
 

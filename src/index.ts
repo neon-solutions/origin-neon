@@ -1,5 +1,6 @@
 import "./instrument.ts";
 import { Sentry } from "./instrument.ts";
+import { analytics } from "./lib/analytics.ts";
 import { loadConfig } from "./lib/config.ts";
 import { connectDb, migrate, type Sql } from "./lib/db.ts";
 import { handleOauthCallback, handleOauthStart } from "./lib/handle-oauth.ts";
@@ -80,6 +81,8 @@ export default {
 						const message =
 							error instanceof Error ? error.message : String(error);
 						return json(500, { error: message });
+					} finally {
+						await analytics.flush();
 					}
 				},
 			).finally(() => Sentry.flush(2000)),

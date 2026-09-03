@@ -73,4 +73,18 @@ describe("loadConfig", () => {
 			}),
 		).toThrow(/together/);
 	});
+
+	it("treats a missing or blank ANALYTICS_WRITE_KEY as unset", () => {
+		expect(loadConfig(base).analyticsWriteKey).toBeUndefined();
+		expect(
+			loadConfig({ ...base, ANALYTICS_WRITE_KEY: "   " }).analyticsWriteKey,
+		).toBeUndefined();
+	});
+
+	it("keeps a non-empty ANALYTICS_WRITE_KEY", () => {
+		expect(
+			loadConfig({ ...base, ANALYTICS_WRITE_KEY: "write-key" })
+				.analyticsWriteKey,
+		).toBe("write-key");
+	});
 });

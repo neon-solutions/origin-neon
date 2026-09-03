@@ -25,6 +25,7 @@ export default defineConfig({
 					SENTRY_TRACES_SAMPLE_RATE:
 						process.env.SENTRY_TRACES_SAMPLE_RATE ?? "1",
 					PRODUCTION_BRANCH: process.env.PRODUCTION_BRANCH ?? "main",
+					ANALYTICS_WRITE_KEY: process.env.ANALYTICS_WRITE_KEY!,
 				},
 			},
 		},

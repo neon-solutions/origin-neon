@@ -24,6 +24,7 @@
 	"dependencies": {
 		"@neon/config": "^1.0.0",
 		"@neon/sdk": "^2.1.0",
+		"@segment/analytics-node": "2.2.1",
 		"@sentry/node": "10.70.0",
 		"jose": "^6.0.11",
 		"openid-client": "^6.8.1",
