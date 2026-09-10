@@ -74,35 +74,35 @@ neon checkout <branch>
 `.env.local` is local testing. `.env.prod` is production Function env.
 
 ```bash
-neon deploy --env .env.prod
+bun run deploy -- --plan
+bun run deploy
 ```
+
+`bun run deploy` writes `SENTRY_RELEASE` for this checkout into `.env.prod` and applies `neon.ts`. An unset declared key throws. Empty strings delete live keys. Do not run it unless `.env.prod` is the complete production environment.
 
 Ship code without replacing Function env:
 
 ```bash
-neon functions deploy originneon --src src/index.ts --wait
+neon functions deploy originneon --profile dbx --src src/index.ts --wait
 ```
 
-Omitting `--env` keeps the Function's existing secrets. On each ship, merge a release id:
+Omitting `--env` keeps the Function's existing secrets. Targeted env update:
 
 ```bash
-neon functions deploy originneon --src src/index.ts \
-  --env "SENTRY_RELEASE=$(git rev-parse --short HEAD)" \
-  --wait
+neon functions deploy originneon --profile dbx --src src/index.ts \
+  --env KEY=VALUE --wait
 ```
 
-`neon deploy --env .env.prod` evaluates `neon.ts` and uploads that env map. An unset declared key throws. Empty strings delete live keys. Do not run it unless `.env.prod` is the complete production environment.
-
-| Variable                                           | Role                                                                   |
-| -------------------------------------------------- | ---------------------------------------------------------------------- |
-| `APP_SECRET`                                       | Encrypts refresh tokens                                                |
-| `PUBLIC_BASE_URL`                                  | Function URL, no trailing slash. Optional; handlers use request origin |
-| `NEON_API_KEY` / `NEON_PROJECT_ID`                 | Labs path                                                              |
-| `ORIGIN_REPO_ALLOWLIST`                            | Comma-separated Origin repository ids                                  |
-| `ORIGIN_APP_ID` / `ORIGIN_PRIVATE_KEY_PEM`         | Origin app signing key                                                 |
-| `ORIGIN_KEY_ID`                                    | Origin JWT key id (this app: same as `ORIGIN_APP_ID`)                  |
+| Variable                                           | Role                                                                       |
+| -------------------------------------------------- | -------------------------------------------------------------------------- |
+| `APP_SECRET`                                       | Encrypts refresh tokens                                                    |
+| `PUBLIC_BASE_URL`                                  | Function URL, no trailing slash. Optional; handlers use request origin     |
+| `NEON_API_KEY` / `NEON_PROJECT_ID`                 | Labs path                                                                  |
+| `ORIGIN_REPO_ALLOWLIST`                            | Comma-separated Origin repository ids                                      |
+| `ORIGIN_APP_ID` / `ORIGIN_PRIVATE_KEY_PEM`         | Origin app signing key                                                     |
+| `ORIGIN_KEY_ID`                                    | Origin JWT key id (this app: same as `ORIGIN_APP_ID`)                      |
 | `NEON_OAUTH_CLIENT_ID` / `NEON_OAUTH_REDIRECT_URI` | Partner OAuth client. Prod callback is the Function `/oauth/neon/callback` |
-| `SENTRY_DSN` / `SENTRY_RELEASE`                    | Required in `.env.prod`. Empty locally disables Sentry                 |
+| `SENTRY_DSN` / `SENTRY_RELEASE`                    | Required in `.env.prod`. Empty locally disables Sentry                     |
 
 `DATABASE_URL` is injected by Neon Functions for this app's own Postgres.
 
@@ -112,6 +112,7 @@ neon functions deploy originneon --src src/index.ts \
 bun install
 bun run test
 bun run typecheck
+bun run deploy -- --help
 neon dev
 ```
 

@@ -17,6 +17,7 @@ cp .env.example .env.local
 bun run typecheck
 bun run test
 bun run fmt
+bun run deploy -- --help
 ```
 
 Live branch create/delete (throws away a smoke project):
@@ -35,19 +36,20 @@ neon dev
 
 ## Production Function
 
-Preferred full deploy: keep `.env.prod` complete for every key in `neon.ts` except
-`SENTRY_RELEASE`, then:
+Preferred full deploy: keep `.env.prod` complete for every key in `neon.ts`, then:
 
 ```bash
-SENTRY_RELEASE=$(git rev-parse --short HEAD) neon deploy --profile dbx --env .env.prod
+bun run deploy -- --plan
+bun run deploy
 ```
 
-That loads the file into `process.env` before evaluating `neon.ts` and uploads those values.
-`--env` does not override an existing shell var. An unset declared key is `undefined` and
-`defineConfig` throws. Omit a key from `neon.ts` if you do not want to write it. Never coerce
-a missing `process.env` value to an empty string. Same Neon project as local, so deploy's env
-pull into `.env.local` is correct; keep local `PUBLIC_BASE_URL` and the OAuth redirect on
-`127.0.0.1:8787`.
+`bun run deploy` upserts `SENTRY_RELEASE` from this checkout and applies `neon.ts`.
+`--env` does not override an existing shell var, so the script sets Function keys from
+the file. An unset declared key is `undefined` and `defineConfig` throws. Omit a key from
+`neon.ts` if you do not want to write it. Never coerce a missing `process.env` value to an
+empty string. Same Neon project as local, so deploy's env pull into `.env.local` is
+correct; keep local `PUBLIC_BASE_URL` and the OAuth redirect on `127.0.0.1:8787`. A live
+Function env name missing from `.env.prod` stops the apply.
 
 For a targeted env update without applying `neon.ts`:
 

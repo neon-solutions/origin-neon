@@ -14,6 +14,7 @@
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run",
 		"test:watch": "vitest",
+		"deploy": "bun scripts/deploy.ts",
 		"test:e2e:live": "ORIGIN_NEON_LIVE=1 vitest run --config vitest.e2e.config.ts",
 		"fmt": "prettier --write .",
 		"fmt:check": "prettier --check ."
