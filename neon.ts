@@ -20,11 +20,16 @@ export default defineConfig({
 						process.env.NEON_OAUTH_HOST ?? "https://oauth2.neon.tech",
 					NEON_OAUTH_CLIENT_ID: process.env.NEON_OAUTH_CLIENT_ID!,
 					NEON_OAUTH_REDIRECT_URI: process.env.NEON_OAUTH_REDIRECT_URI!,
-					SENTRY_DSN: process.env.SENTRY_DSN!,
-					SENTRY_RELEASE: process.env.SENTRY_RELEASE!,
-					SENTRY_TRACES_SAMPLE_RATE:
-						process.env.SENTRY_TRACES_SAMPLE_RATE ?? "1",
-					PRODUCTION_BRANCH: process.env.PRODUCTION_BRANCH ?? "main",
+					...(process.env.SENTRY_ENABLED === "true"
+						? {
+								SENTRY_ENABLED: "true",
+								SENTRY_DSN: process.env.SENTRY_DSN!,
+								SENTRY_RELEASE: process.env.SENTRY_RELEASE!,
+								SENTRY_TRACES_SAMPLE_RATE:
+									process.env.SENTRY_TRACES_SAMPLE_RATE ?? "1",
+								PRODUCTION_BRANCH: process.env.PRODUCTION_BRANCH ?? "main",
+							}
+						: {}),
 					ANALYTICS_WRITE_KEY: process.env.ANALYTICS_WRITE_KEY!,
 				},
 			},

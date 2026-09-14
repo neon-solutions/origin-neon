@@ -78,7 +78,7 @@ bun run deploy -- --plan
 bun run deploy
 ```
 
-`bun run deploy` writes `SENTRY_RELEASE` for this checkout into `.env.prod` and applies `neon.ts`. An unset declared key throws. Empty strings delete live keys. Do not run it unless `.env.prod` is the complete production environment.
+`bun run deploy` writes `SENTRY_RELEASE` for this checkout into `.env.prod`, enables production Sentry during config evaluation, and applies `neon.ts`. An unset declared key throws. Empty strings delete live keys. Do not run it unless `.env.prod` is the complete production environment. Raw `neon deploy --env .env.prod` is not a full-deploy substitute because it does not select production Sentry.
 
 Ship code without replacing Function env:
 
@@ -102,7 +102,7 @@ neon functions deploy originneon --profile dbx --src src/index.ts \
 | `ORIGIN_APP_ID` / `ORIGIN_PRIVATE_KEY_PEM`         | Origin app signing key                                                     |
 | `ORIGIN_KEY_ID`                                    | Origin JWT key id (this app: same as `ORIGIN_APP_ID`)                      |
 | `NEON_OAUTH_CLIENT_ID` / `NEON_OAUTH_REDIRECT_URI` | Partner OAuth client. Prod callback is the Function `/oauth/neon/callback` |
-| `SENTRY_DSN` / `SENTRY_RELEASE`                    | Required in `.env.prod`. Empty locally disables Sentry                     |
+| `SENTRY_DSN` / `SENTRY_RELEASE`                    | Required in `.env.prod`; never stored in `.env.local`                      |
 
 `DATABASE_URL` is injected by Neon Functions for this app's own Postgres.
 
@@ -113,7 +113,7 @@ bun install
 bun run test
 bun run typecheck
 bun run deploy -- --help
-neon dev
+bun run dev
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).

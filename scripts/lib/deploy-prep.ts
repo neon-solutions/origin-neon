@@ -18,6 +18,7 @@ export const REQUIRED_FUNCTION_ENV = [
 	"PRODUCTION_BRANCH",
 	"ANALYTICS_WRITE_KEY",
 ] as const;
+export const HARDCODED_FUNCTION_ENV = ["SENTRY_ENABLED"] as const;
 
 const ASSIGNMENT = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/;
 
@@ -75,7 +76,7 @@ export function readEnvAssignments(content: string): Record<string, string> {
 }
 
 export function declaredUploadKeys(): string[] {
-	return [...REQUIRED_FUNCTION_ENV];
+	return [...REQUIRED_FUNCTION_ENV, ...HARDCODED_FUNCTION_ENV];
 }
 
 export function liveOnlyEnvNames(opts: {
@@ -171,6 +172,7 @@ export function neonChildEnv(opts: {
 		}
 		child[key] = value;
 	}
+	child.SENTRY_ENABLED = "true";
 	return child;
 }
 

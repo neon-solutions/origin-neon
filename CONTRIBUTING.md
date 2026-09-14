@@ -7,7 +7,7 @@ bun install
 cp .env.example .env.local
 ```
 
-`.env.local` is this checkout's local app (`neon env pull --file .env.local` / `neon checkout` / `neon dev`). `.env.prod` is this checkout's Function apply file. Never symlink either file across checkouts. Keep both up to date: when a declared Function env key is added, rotated, or removed, put the production value in `.env.prod` and the local value in `.env.local`. Both files are gitignored.
+`.env.local` is this checkout's local app (`neon env pull --file .env.local` / `neon checkout` / `bun run dev`). `.env.prod` is this checkout's Function apply file. Never symlink either file across checkouts. Sentry configuration lives only in `.env.prod`; supported local commands load `.env.local` and force Sentry off. Keep shared app keys current in both files. Both files are gitignored.
 
 `.neon` is created by `neon link` / `neon checkout` and must stay untracked.
 
@@ -29,7 +29,7 @@ ORIGIN_NEON_LIVE=1 NEON_API_KEY=… NEON_ORG_ID=… bun run test:e2e:live
 ## Local Function
 
 ```bash
-neon dev
+bun run dev
 ```
 
 `GET http://127.0.0.1:8787/` is the health check. Neon OAuth with `client_id=neonctl` only works against that loopback callback.
@@ -43,13 +43,17 @@ bun run deploy -- --plan
 bun run deploy
 ```
 
-`bun run deploy` upserts `SENTRY_RELEASE` from this checkout and applies `neon.ts`.
+`bun run deploy` upserts `SENTRY_RELEASE`, enables production Sentry during config evaluation, and applies `neon.ts`.
 `--env` does not override an existing shell var, so the script sets Function keys from
 the file. An unset declared key is `undefined` and `defineConfig` throws. Omit a key from
 `neon.ts` if you do not want to write it. Never coerce a missing `process.env` value to an
 empty string. Same Neon project as local, so deploy's env pull into `.env.local` is
 correct; keep local `PUBLIC_BASE_URL` and the OAuth redirect on `127.0.0.1:8787`. A live
 Function env name missing from `.env.prod` stops the apply.
+
+Use the wrapper for full deploys. Raw `neon deploy --env .env.prod` does not select
+production Sentry. For source-only rollback, `neon functions deploy` without `--env`
+preserves the live Function environment.
 
 For a targeted env update without applying `neon.ts`:
 

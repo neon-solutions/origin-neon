@@ -10,12 +10,12 @@
 		"url": "git+https://github.com/neon-solutions/origin-neon.git"
 	},
 	"scripts": {
-		"dev": "neon dev",
+		"dev": "SENTRY_ENABLED=false node --env-file-if-exists=.env.local scripts/dev.mjs",
 		"typecheck": "tsc --noEmit",
-		"test": "vitest run",
-		"test:watch": "vitest",
+		"test": "SENTRY_ENABLED=false node --env-file-if-exists=.env.local ./node_modules/vitest/vitest.mjs run",
+		"test:watch": "SENTRY_ENABLED=false node --env-file-if-exists=.env.local ./node_modules/vitest/vitest.mjs",
 		"deploy": "bun scripts/deploy.ts",
-		"test:e2e:live": "ORIGIN_NEON_LIVE=1 vitest run --config vitest.e2e.config.ts",
+		"test:e2e:live": "SENTRY_ENABLED=false ORIGIN_NEON_LIVE=1 node --env-file-if-exists=.env.local ./node_modules/vitest/vitest.mjs run --config vitest.e2e.config.ts",
 		"fmt": "prettier --write .",
 		"fmt:check": "prettier --check ."
 	},

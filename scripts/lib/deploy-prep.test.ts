@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+	HARDCODED_FUNCTION_ENV,
 	REQUIRED_FUNCTION_ENV,
 	assertGitSha,
 	assertNoLiveOnlyEnv,
@@ -92,10 +93,12 @@ describe("neonChildEnv", () => {
 			inherited: {
 				PATH: "/bin",
 				SENTRY_RELEASE: "",
+				SENTRY_ENABLED: "false",
 				APP_SECRET: "shell-token",
 			},
 		});
 		expect(child.SENTRY_RELEASE).toBe("file-SENTRY_RELEASE");
+		expect(child.SENTRY_ENABLED).toBe("true");
 		expect(child.APP_SECRET).toBe("file-APP_SECRET");
 		expect(child.PATH).toBe("/bin");
 	});
@@ -218,6 +221,10 @@ describe("live Function env names", () => {
 
 	it("live-only names are the keys an apply would drop", () => {
 		const uploadKeys = declaredUploadKeys();
+		expect(uploadKeys).toEqual([
+			...REQUIRED_FUNCTION_ENV,
+			...HARDCODED_FUNCTION_ENV,
+		]);
 		expect(
 			liveOnlyEnvNames({
 				liveNames: [...uploadKeys, "STALE_KEY"],
